@@ -484,6 +484,12 @@ namespace QuickFix
 
         public void Next(Message message)
         {
+            if (!IsSessionTime)
+            {
+                Reset();
+                return;
+            }
+
             Header header = message.Header;
             string msgType = "";
 
