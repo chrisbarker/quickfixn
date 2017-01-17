@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UnitTests</RootNamespace>
     <AssemblyName>UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -29,6 +29,11 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -78,18 +84,22 @@
     <Compile Include="ConfigTests.cs" />
     <Compile Include="ConverterTests.cs" />
     <Compile Include="DataDictionaryTests.cs" />
+    <Compile Include="DDFieldTests.cs" />
+    <Compile Include="DefaultMessageFactoryTests.cs" />
     <Compile Include="DictionaryTest.cs" />
     <Compile Include="FieldMapTests.cs" />
     <Compile Include="FieldTests.cs" />
     <Compile Include="FileLogTests.cs" />
     <Compile Include="FileStoreTests.cs" />
     <Compile Include="GenMessageTest.cs" />
+    <Compile Include="GroupTests.cs" />
     <Compile Include="HiPerfTimer.cs" />
     <Compile Include="MemoryStoreTest.cs" />
     <Compile Include="MessageCrackerTests.cs" />
     <Compile Include="MessageTests.cs" />
     <Compile Include="ParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionDynamicTest.cs" />
     <Compile Include="SessionFactoryTest.cs" />
     <Compile Include="SessionIDTest.cs" />
     <Compile Include="SessionScheduleTests.cs" />
@@ -98,9 +108,11 @@
     <Compile Include="SessionTest.cs" />
     <Compile Include="SettingsTest.cs" />
     <Compile Include="StringUTF8Tests.cs" />
+    <Compile Include="ThreadedSocketAcceptorTests.cs" />
+    <Compile Include="Util\UtcDateTimeSerializerTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QuickFIX.NET\QuickFix.csproj">
+    <ProjectReference Include="..\QuickFIXn\QuickFix.csproj">
       <Project>{D67079DA-6C49-48B2-93AB-1C3E879F5A0B}</Project>
       <Name>QuickFix</Name>
     </ProjectReference>
@@ -138,7 +150,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -242,6 +242,7 @@ namespace UnitTests
             string settingsString = new System.Text.StringBuilder()
                 .AppendLine("[DEFAULT]")
                 .AppendLine("ConnectionType=initiator")
+                .AppendLine("HeartBtInt=60")
                 .AppendLine("[SESSION]")
                 .AppendLine("BeginString=FIX.4.2")
                 .AppendLine("SenderCompID=Company")
@@ -254,11 +255,14 @@ namespace UnitTests
                 .AppendLine("MillisecondsInTimeStamp=Y")
                 .AppendLine("EnableLastMsgSeqNumProcessed=Y")
                 .AppendLine("MaxMessagesInResendRequest=2500")
+                .AppendLine("StartTime=06:00:00")
+                .AppendLine("EndTime=05:59:00")
                 .ToString();
 
             SessionSettings settings = new SessionSettings(new System.IO.StringReader(settingsString));
             
             SessionID id = new SessionID("FIX.4.2", "Company", "FixedIncome", "HongKong", "CLIENT1", "HedgeFund", "NYC");
+            Assert.That(settings.Get(id).GetString("HeartBtInt"), Is.EqualTo("60"));
             Assert.That(settings.Get(id).GetString("BeginString"), Is.EqualTo("FIX.4.2"));
             Assert.That(settings.Get(id).GetString("SenderCompID"), Is.EqualTo("Company"));
             Assert.That(settings.Get(id).GetString("SenderSubID"), Is.EqualTo("FixedIncome"));
@@ -270,7 +274,8 @@ namespace UnitTests
             Assert.That(settings.Get(id).GetString("MillisecondsInTimeStamp"), Is.EqualTo("Y"));
             Assert.That(settings.Get(id).GetString("EnableLastMsgSeqNumProcessed"), Is.EqualTo("Y"));
             Assert.That(settings.Get(id).GetString("MaxMessagesInResendRequest"), Is.EqualTo("2500"));
-
+            Assert.That(settings.Get(id).GetString("StartTime"), Is.EqualTo("06:00:00"));
+            Assert.That(settings.Get(id).GetString("EndTime"), Is.EqualTo("05:59:00"));
             id = null;
             foreach(SessionID sid in settings.GetSessions())
             {
@@ -285,6 +290,34 @@ namespace UnitTests
             Assert.That(id.TargetCompID, Is.EqualTo("CLIENT1"));
             Assert.That(id.TargetSubID, Is.EqualTo("HedgeFund"));
             Assert.That(id.TargetLocationID, Is.EqualTo("NYC"));
+        }
+
+        [Test]
+        public void SettingsFileRelease()
+        {
+            string f = "../../foo_config.cfg";
+            new SessionSettings(f);
+
+            // if the file is still locked, this will throw an exception
+            new SessionSettings(f);
+        }
+
+        [Test]
+        public void CaseInsensitiveSectionName()
+        {
+            string configuration = @"[dEfAuLt]
+ConnectionType=initiator
+[sEsSiOn]
+BeginString=FIX.4.2
+SenderCompID=ISLD
+TargetCompID=TW";
+            SessionSettings settings = new SessionSettings(new System.IO.StringReader(configuration));
+
+            Assert.That(settings.Get().GetString("ConnectionType"), Is.EqualTo("initiator"));
+
+            SessionID session = new SessionID("FIX.4.2", "ISLD", "TW");
+            Assert.That(settings.Get(session).GetString("ConnectionType"), Is.EqualTo("initiator"));
+            Assert.That(settings.Get(session).GetString("BeginString"), Is.EqualTo("FIX.4.2"));
         }
     }
 }

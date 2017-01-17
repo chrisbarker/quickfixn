@@ -1,5 +1,6 @@
 $LOAD_PATH << File.dirname(__FILE__)
 
+require 'rubygems'
 require 'fix_dictionary'
 require 'fields_gen'
 require 'messages_gen'
@@ -24,7 +25,7 @@ class Generator
     @fix50 = FIXDictionary.load spec('FIX50')
     @fix50sp1 = FIXDictionary.load spec('FIX50SP1')
     @fix50sp2 = FIXDictionary.load spec('FIX50SP2')
-    @src_path = File.join File.dirname(__FILE__), '..', 'QuickFIX.NET'
+    @src_path = File.join File.dirname(__FILE__), '..', 'QuickFIXn'
   end
 
   def spec fixver

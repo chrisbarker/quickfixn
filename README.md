@@ -1,27 +1,31 @@
-[![QuickFIX/N][1]][0]
+[![QuickFIX/N][1]](http://quickfixn.org)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/ccu2yp2coad3oam0?svg=true)](https://ci.appveyor.com/project/cbusbey/quickfixn-jib50)
 
-For tutorials on how to use QuickFIX/n, see the `tutorial` folder at the root
-of this project or visit the [website][2].
+For tutorials on how to use QuickFIX/n, visit the [website](http://quickfixn.org/tutorial/creating-an-application.html).
 
 This README is about setting up your system to do QuickFIX/n
 development.
 
 System Setup
 ------------
-This project requires MSBuild, NUnit, Ruby (1.9.2), and xsltproc.
+This project requires the following:
 
-You can get xsltproc via cygwin, or by installing libxslt (which requires
-libxml2 and zlib).
+**To build**
 
-You can get Ruby from rubyinstall.org/downloads
+* [Ruby (1.9.3 recommended)](http://rubyinstaller.org/) (used to generate message and field classes from the DataDictionary xml file)
+* Visual Studio 2010 or higher
+
+**To run tests**
+
+* [NUnit](http://nunit.org)
 
 Code Generation
 ---------------
-To generate the code from Data Dictionaries, you need Ruby/JRuby (http://jruby.org/download) and the Nokogiri gem:
+To regenerate the message and field class source from the Data Dictionaries, you need Ruby and the Nokogiri gem:
 
     gem install nokogiri
-    ruby generator/generate.rb
+    generate.bat
 
 
 Build
@@ -40,9 +44,10 @@ from a Visual Studio cmd shell, this should not be a problem.  However, if you
 run it from some other shell (e.g. cygwin), you may need to append something
 like:
 
-    C:\WINDOWS\Microsoft.NET\Framework\v3.5
+    C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319
 
-to your PATH environment variable.
+to your PATH environment variable.  (Note, this build tools dir does not mean that the project
+will build for .NET 4.0; these are merely the build tools that come with VS 2010.)
 
 
 Unit Tests
@@ -50,6 +55,9 @@ Unit Tests
 To run the NUnit tests, run:
 
     unit_test.bat
+
+(This script expects nunit-console.exe to be on your PATH.  You may have to append
+something like `C:\Program Files\NUnit 2.6.1\bin` to your PATH environment variable.)
 
 An HTML report of the test results will then be available here:
 
@@ -59,7 +67,7 @@ To run a Unit Test in the debugger (not sure if it works in VS Express):
 
 1. Right-click UnitTests project, click 'Properties'
 2. Go to Debug tab
-3. Change Start Action to 'Start external program: C:\Program Files\NUnit-2.5.9.10348\bin\net-2.0\nunit.exe'
+3. Change Start Action to 'Start external program: C:\Program Files\NUnit 2.6.1\bin\nunit.exe'
    (change the path to what is appropriate for your system)
 4. Set your 'Command line arguments' to 'C:\dev\quickfixn\UnitTests\bin\Debug\UnitTests.dll'
    (change the path to what is appropriate for your system)
@@ -83,59 +91,38 @@ An HTML report of the test results will then be available here:
 
 To run one particular acceptance test, e.g. fix42\14e_IncorrectEnumValue.def:
 
-    cd AcceptanceTests
-    runat.bat release 5001 definitions\server\fix42\14e_IncorrectEnumValue.def
+    cd AcceptanceTest
+    runat.bat release 5003 definitions\server\fix42\14e_IncorrectEnumValue.def cfg\at_42.cfg
+
+(See acceptance_test.bat for the proper port numbers and config files to use in the above command.)
 
 The test results will then be available in AcceptanceTests\TestResults.xml and
 debug information will be available in the AcceptanceTests\log directory.
 
-To run a test with the debugger, 
+To run a test with the debugger,
 
   1. Open the solution file in Visual Studio
-  2. Right click on "AcceptanceTest" project
-  3. Open the "properties" tab
-  4. Click "Debug" on the left hand nav bar
-  5. Set "Command line arguments" to "cfg\at.cfg"
-  6. Set the working folder to "... AcceptanceTest"
-  7. Save the properties
+  2. Right click on "AcceptanceTest" project and choose "Properties" from the menu
+  3. Click "Debug" on the left hand nav bar
+  4. Set "Command line arguments" to the relevant "cfg\at_XX.cfg" for your test
+  5. Set the working directory to "[yourpath]\quickfixn\AcceptanceTest"
+  6. Save the properties
   7. Right click the "AcceptanceTest" project, go to Debug -> Start New Instance
   8. In command terminal, go into "AcceptanceTest" directory
   9. Run: `ruby Runner.rb 127.0.0.1 5001 definitions\server\fix42\YourTestName.def`
 
-
-Website
+Credits
 -------
 
-The website is a small Ruby Sinatra application.
+![Connamara Systems](http://www.connamara.com/wp-content/uploads/2016/01/connamara_logo_dark.png)
 
-For development, you should install Ruby 1.9.2 and the bundler gem then
-bundle:
+QuickFIXn is maintained and funded by [Connamara Systems, llc](http://connamara.com).
 
-    gem install bundler
-    bundle
+The names and logos for Connamara Systems are trademarks of Connamara Systems, llc.
 
-Upon installing the gems, you can run this in the top directory to
-start the website:
+Licensing
+---------
 
-    thin start
+This software is available under the QuickFIX Software License. Please see the [LICENSE](LICENSE) for the terms specified by the QuickFIX Software License.
 
-`thin` automatically picks up the Rackfile `config.ru` in the top
-directory.
-
-Website specific files live in `/web`.
-
-The website also serves tutorial files from the `/tutorial` directory
-
-Markdown should be used for all tutorial files whenever possible, so
-that viewers of the source can easily read plain text documentation.
-
-For development purposes, you can install the `shotgun` web server;
-this will re-load the website on every request. To start the website
-with shotgun, simply run shotgun at the top directory:
-
-    shotgun -p 3002
-
-
-[0]: http://quickfixn.org
-[1]: http://quickfixn.org/images/qfn-logo/QuickFIX-n_logo-small.png
-[2]: http://quickfixn.org/tutorial/creating-an-application
+[1]: http://quickfixn.org/web/public/images/qfn-logo/QuickFIX-n_logo-small.png

@@ -8,19 +8,14 @@ using QuickFix.Fields;
 
 namespace UnitTests
 {
-    public class MockFieldMap : FieldMap
-    {
-        public MockFieldMap() { }
-        public MockFieldMap(int[] fo) : base(fo) { }
-    }
 
     [TestFixture]
     public class FieldMapTests
     {
-        private MockFieldMap fieldmap;
+        private FieldMap fieldmap;
         public FieldMapTests()
         {
-            this.fieldmap = new MockFieldMap();
+            this.fieldmap = new FieldMap();
         }
 
         [Test]
@@ -105,6 +100,36 @@ namespace UnitTests
         }
 
         [Test]
+        public void DateOnlyFieldTest()
+        {
+            fieldmap.SetField(new DateOnlyField(Tags.MDEntryDate, new DateTime(2009, 12, 10, 1, 2, 3)));
+            MDEntryDate ed = new MDEntryDate();
+            fieldmap.GetField(ed);
+            Assert.AreEqual(new DateTime(2009, 12, 10), ed.Obj);
+            fieldmap.SetField(new MDEntryDate(new DateTime(2010, 12, 10)));
+            DateOnlyField r = fieldmap.GetField(ed);
+            Assert.AreEqual(new DateTime(2010, 12, 10), ed.getValue());            
+            
+            Assert.AreSame(r, ed);
+            Assert.AreEqual("20101210", ed.ToString());
+        }
+
+        [Test]
+        public void TimeOnlyFieldTest()
+        {            
+            fieldmap.SetField(new TimeOnlyField(Tags.MDEntryTime, new DateTime(1, 1, 1, 1, 2, 3), false));
+            MDEntryTime et = new MDEntryTime();
+            fieldmap.GetField(et);
+            Assert.AreEqual(new DateTime(1, 1, 1, 1, 2, 3).TimeOfDay, et.Obj.TimeOfDay);
+            fieldmap.SetField(new MDEntryTime(new DateTime(1, 1, 1, 1, 2, 5)));
+            TimeOnlyField r = fieldmap.GetField(et);
+            Assert.AreEqual(new DateTime(1, 1, 1, 1, 2, 5).TimeOfDay, et.getValue().TimeOfDay);
+            
+            Assert.AreSame(r, et);
+            Assert.AreEqual("01:02:05.000", et.ToString());
+        }
+
+        [Test]
         public void GetDateTimeTest()
         {
             fieldmap.SetField(new DateTimeField(Tags.TransactTime, new DateTime(2009, 12, 10)));
@@ -115,6 +140,23 @@ namespace UnitTests
                     delegate { fieldmap.GetDateTime(99900); });
         }
 
+        [Test]
+        public void GetDateOnlyTest()
+        {
+            fieldmap.SetField(new DateOnlyField(Tags.MDEntryDate, new DateTime(2009, 12, 10, 1, 2, 3)));
+            Assert.AreEqual(new DateTime(2009, 12, 10), fieldmap.GetDateTime(Tags.MDEntryDate));
+            fieldmap.SetField(new StringField(233, "20091211"));
+            Assert.AreEqual(new DateTime(2009, 12, 11), fieldmap.GetDateOnly(233));
+        }
+
+        [Test]
+        public void GetTimeOnlyTest()
+        {
+            fieldmap.SetField(new TimeOnlyField(Tags.MDEntryTime, new DateTime(2009, 12, 10, 1, 2, 3)));
+            Assert.AreEqual(new DateTime(2009, 12, 10, 1, 2, 3).TimeOfDay, fieldmap.GetDateTime(Tags.MDEntryTime).TimeOfDay);
+            fieldmap.SetField(new StringField(233, "07:30:47"));
+            Assert.AreEqual(new DateTime(2009, 12, 11, 7, 30, 47).TimeOfDay, fieldmap.GetTimeOnly(233).TimeOfDay);
+        }
 
         [Test]
         public void BooleanFieldTest()
@@ -240,7 +282,7 @@ namespace UnitTests
         public void SimpleFieldOrderTest()
         {
             int[] fieldord = { 10, 11, 12, 13, 200 };
-            MockFieldMap fm = new MockFieldMap(fieldord);
+            FieldMap fm = new FieldMap(fieldord);
             Assert.That(fm.FieldOrder, Is.EqualTo(fieldord));
         }
 
@@ -253,7 +295,7 @@ namespace UnitTests
 
             g1.SetField(new StringField(200, "delim!"));
 
-            MockFieldMap fm = new MockFieldMap();
+            FieldMap fm = new FieldMap();
             fm.AddGroup(g1);
             Assert.AreEqual(1, fm.GetInt(100));
 
@@ -268,7 +310,7 @@ namespace UnitTests
         {
             Group g1 = new Group(100, 200);
             Group g2 = new Group(100, 201);
-            MockFieldMap fm = new MockFieldMap();
+            FieldMap fm = new FieldMap();
             fm.AddGroup(g1);
             fm.AddGroup(g2);
             Assert.That(fm.GetGroup(1, 100), Is.EqualTo(g1));
@@ -287,7 +329,7 @@ namespace UnitTests
         {
             Group g1 = new Group(100, 200);
             Group g2 = new Group(100, 201);
-            MockFieldMap fm = new MockFieldMap();
+            FieldMap fm = new FieldMap();
             fm.AddGroup(g1);
             fm.AddGroup(g2);
             Assert.That(fm.GetGroup(1, 100), Is.EqualTo(g1));
@@ -313,7 +355,7 @@ namespace UnitTests
         {
             Group g1 = new Group(100, 200);
             Group g2 = new Group(100, 201);
-            MockFieldMap fm = new MockFieldMap();
+            FieldMap fm = new FieldMap();
             fm.AddGroup(g1);
             fm.AddGroup(g2);
             Assert.That(fm.GetGroup(1, 100), Is.EqualTo(g1));
@@ -336,7 +378,7 @@ namespace UnitTests
         [Test]
         public void IsFieldSetTest()
         {
-            MockFieldMap fieldmap = new MockFieldMap();
+            FieldMap fieldmap = new FieldMap();
             BooleanField field = new BooleanField(200, true);
             Assert.That(fieldmap.IsSetField(field), Is.EqualTo(false));
             Assert.That(fieldmap.IsSetField(field.Tag), Is.EqualTo(false));
@@ -348,7 +390,7 @@ namespace UnitTests
         [Test]
         public void ClearAndIsEmptyTest()
         {
-            MockFieldMap fieldmap = new MockFieldMap();
+            FieldMap fieldmap = new FieldMap();
             BooleanField field = new BooleanField(200, true);
             Assert.That(fieldmap.IsEmpty(), Is.EqualTo(true));
             fieldmap.SetField(field);
@@ -360,6 +402,19 @@ namespace UnitTests
             Assert.That(fieldmap.IsEmpty(), Is.EqualTo(false));
             fieldmap.Clear();
             Assert.That(fieldmap.IsEmpty(), Is.EqualTo(true));
+        }
+
+        [Test]
+        public void AddGroupKeepTypeTest()
+        {
+            // bug found during issue 56 - Group object was losing type after being added
+            FieldMap fm = new FieldMap();
+            QuickFix.FIX42.News.LinesOfTextGroup linesGroup = new QuickFix.FIX42.News.LinesOfTextGroup();
+            linesGroup.Text = new QuickFix.Fields.Text("foo");
+            fm.AddGroup(linesGroup);
+
+            var rvGroup = fm.GetGroup(1, Tags.LinesOfText);
+            Assert.IsInstanceOf<QuickFix.FIX42.News.LinesOfTextGroup>(rvGroup);
         }
     }
 }

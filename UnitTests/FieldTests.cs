@@ -103,6 +103,15 @@ namespace UnitTests
         }
 
         [Test]
+        public void StringFieldTest_NonAscii()
+        {
+            // technically, non-ascii shouldn't be in a StringField, but sometimes it happens, so let's not freak out.
+            StringField obj = new StringField(359, "olé!");
+            Assert.AreEqual(839, obj.getTotal()); // sum of all bytes in "359=olé!"+nul
+            Assert.AreEqual(10, obj.getLength()); // 7 single-byte chars + 1 double=byte char + nul = 10 bytes
+        }
+
+        [Test]
         public void DefaultValTest()
         {
             BooleanField bf = new BooleanField(110);
@@ -144,20 +153,37 @@ namespace UnitTests
         }
 
         [Test]
-        public void TimeOnlyFieldTest()
+        public void DateOnlyFieldTest()
         {
             MDEntryDate d = new MDEntryDate(new DateTime(2011, 11, 30, 8, 9, 10, 555));
             Assert.AreEqual("20111130", d.ToString());
         }
 
         [Test]
-        public void DateOnlyFieldTest()
+        public void TimeOnlyFieldTest()
         {
             MDEntryTime t = new MDEntryTime(new DateTime(2011, 11, 30, 8, 9, 10, 555), true);
             Assert.AreEqual("08:09:10.555", t.ToString());
 
             t = new MDEntryTime(new DateTime(2011, 11, 30, 8, 9, 10, 555), false);
             Assert.AreEqual("08:09:10", t.ToString());
+        }
+
+        [Test]
+        public void EqualsTest()
+        {
+            StringField a1 = new StringField(123, "a");
+            StringField aSame = a1;
+            StringField a2 = new StringField(123, "a");
+            StringField diffValue = new StringField(123, "b");
+            StringField diffTag = new StringField(999, "a");
+            IField diffType = new CharField(123, 'a');
+
+            Assert.True(a1.Equals(aSame));
+            Assert.True(a1.Equals(a2));
+            Assert.False(a1.Equals(diffValue));
+            Assert.False(a1.Equals(diffTag));
+            Assert.False(a1.Equals(diffType));
         }
     }
 }

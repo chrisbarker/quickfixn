@@ -24,6 +24,7 @@ class MessageGen
   end
 
   def self.gen_basemsg fixver, destdir
+    beginstring = fixver.match(/^FIX50/) ? "FIXT11" : fixver
 <<HERE
 // This is a generated file.  Don't edit it directly!
 
@@ -36,7 +37,7 @@ namespace QuickFix
             public Message()
                 : base()
             {
-                this.Header.SetField(new QuickFix.Fields.BeginString(QuickFix.FixValues.BeginString.#{fixver}));
+                this.Header.SetField(new QuickFix.Fields.BeginString(QuickFix.FixValues.BeginString.#{beginstring}));
             }
         }
     }
@@ -150,11 +151,20 @@ HERE
     str = []
     str << "public class #{grp[:name]}Group : Group"
     str << "{"
+    str << "    public static int[] fieldOrder = {#{grp_field_order grp[:fields] }};"
+    str << ""
     str << "    public #{grp[:name]}Group() "
     str << "      :base( Tags.#{grp[:group_field][:name]}, Tags.#{grp[:fields][0][:name]}, fieldOrder)"
     str << "    {"
     str << "    }"
-    str << "    public static int[] fieldOrder = {#{grp_field_order grp[:fields] }};"
+    str << ""
+    str << "    public override Group Clone()"
+    str << "    {"
+    str << "        var clone = new #{grp[:name]}Group();"
+    str << "        clone.CopyStateFrom(this);"
+    str << "        return clone;"
+    str << "    }"
+    str << ""
     str << gen_msg_fields(grp[:fields], prepend_spaces+4)
     str << gen_msg_groups(grp[:groups], prepend_spaces+4)
     str << "}"

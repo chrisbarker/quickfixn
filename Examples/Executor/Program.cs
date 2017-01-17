@@ -11,6 +11,10 @@ namespace Executor
         [STAThread]
         static void Main(string[] args)
         {
+            Console.WriteLine("=============");
+            Console.WriteLine("This is only an example program, meant to be used with the TradeClient example.");
+            Console.WriteLine("=============");
+
             if (args.Length != 1)
             {
                 Console.WriteLine("usage: Executor CONFIG_FILENAME");
@@ -20,9 +24,9 @@ namespace Executor
             try
             {
                 SessionSettings settings = new SessionSettings(args[0]);
-                Application executorApp = new Executor();
-                MessageStoreFactory storeFactory = new FileStoreFactory(settings);
-                LogFactory logFactory = new FileLogFactory(settings);
+                IApplication executorApp = new Executor();
+                IMessageStoreFactory storeFactory = new FileStoreFactory(settings);
+                ILogFactory logFactory = new FileLogFactory(settings);
                 ThreadedSocketAcceptor acceptor = new ThreadedSocketAcceptor(executorApp, storeFactory, settings, logFactory);
 
                 acceptor.Start();

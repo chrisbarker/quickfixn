@@ -16,19 +16,18 @@ echo ==QuickFIX/N Package release script==
 echo tag version: %TAG_VERSION%
 echo
 
+rem Update the assembly version
+ruby scripts\update_assembly_version.rb %TAG_VERSION% QuickFIXn\Properties\AssemblyInfo.cs
+if %errorlevel% neq 0 echo "update_assembly_version.rb failed" && exit /b %errorlevel%
+echo * AssemblyInfo updated for new version number.
 
-rem Update downloads page - NOTE this must be done first
-ruby scripts\update_download_page.rb web/views/download.md %TAG_VERSION%
-if %errorlevel% neq 0 echo "There was an error uploading the downloads page" && exit /b %errorlevel%
-echo * Downloads page updated.
-
-rem commit the downloads page, so it will be part of the tag
-call git add web/views/download.md
-call git commit -m "Download page for version %TAG_VERSION%"
-echo * Downloads page committed.
+rem commit the version file, so it will be part of the tag
+call git add QuickFIXn\Properties\AssemblyInfo.cs
+call git commit -m "version number for version %TAG_VERSION%"
+echo * Version number committed.
 
 rem create the tag
-call git tag -a %TAG_VERSION% -m "Created a tag for version %TAG_VERSION%"
+call git tag -a %TAG_VERSION% -m "Release version %TAG_VERSION%"
 echo * Created tag.
 
 rem Get requested version
@@ -53,7 +52,7 @@ mkdir tmp\%QF_DIR%
 mkdir tmp\%QF_DIR%\bin
 mkdir tmp\%QF_DIR%\spec
 mkdir tmp\%QF_DIR%\config
-copy QuickFIX.NET\bin\Release\QuickFix.dll tmp\%QF_DIR%\bin
+copy QuickFIXn\bin\Release\QuickFix.dll tmp\%QF_DIR%\bin
 xcopy spec tmp\%QF_DIR%\spec /e /y
 copy config\sample_acceptor.cfg tmp\%QF_DIR%\config\
 copy config\sample_initiator.cfg tmp\%QF_DIR%\config\

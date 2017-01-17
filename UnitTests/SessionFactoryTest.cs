@@ -10,8 +10,8 @@ namespace UnitTests
         [Test]
         public void TestPersistMessages()
         {
-            Application app = new NullApplication();
-            MessageStoreFactory storeFactory = new MemoryStoreFactory();
+            IApplication app = new NullApplication();
+            IMessageStoreFactory storeFactory = new MemoryStoreFactory();
             SessionFactory factory = new SessionFactory(app, storeFactory);
 
             SessionID sessionID = new SessionID("FIX.4.2", "SENDER", "TARGET");
@@ -34,8 +34,8 @@ namespace UnitTests
         [Test]
         public void ValidConfiguration()
         {
-            Application app = new NullApplication();
-            MessageStoreFactory storeFactory = new MemoryStoreFactory();
+            IApplication app = new NullApplication();
+            IMessageStoreFactory storeFactory = new MemoryStoreFactory();
             SessionFactory factory = new SessionFactory(app, storeFactory);
 
             SessionID sessionID = new SessionID("FIX.4.2", "SENDER", "TARGET");
@@ -52,8 +52,8 @@ namespace UnitTests
         [Test]
         public void StartDayAndEndDayAreDifferent()
         {
-            Application app = new NullApplication();
-            MessageStoreFactory storeFactory = new MemoryStoreFactory();
+            IApplication app = new NullApplication();
+            IMessageStoreFactory storeFactory = new MemoryStoreFactory();
             SessionFactory factory = new SessionFactory(app, storeFactory);
 
             SessionID sessionID = new SessionID("FIX.4.2", "SENDER", "TARGET");
@@ -72,14 +72,15 @@ namespace UnitTests
         [Test]
         public void TestExtendedSettings()
         {
-            Application app = new NullApplication();
-            MessageStoreFactory storeFactory = new MemoryStoreFactory();
+            IApplication app = new NullApplication();
+            IMessageStoreFactory storeFactory = new MemoryStoreFactory();
             SessionFactory factory = new SessionFactory(app, storeFactory);
 
             SessionID sessionID = new SessionID("FIX.4.2", "SENDER", "TARGET");
             Dictionary settings = new Dictionary();
             settings.SetString(SessionSettings.USE_DATA_DICTIONARY, "N");
             settings.SetString(SessionSettings.SEND_REDUNDANT_RESENDREQUESTS, "Y");
+            settings.SetString(SessionSettings.RESEND_SESSION_LEVEL_REJECTS, "Y");
             settings.SetString(SessionSettings.MILLISECONDS_IN_TIMESTAMP, "Y");
             settings.SetString(SessionSettings.CONNECTION_TYPE, "initiator");
             settings.SetString(SessionSettings.HEARTBTINT, "30");
@@ -93,13 +94,16 @@ namespace UnitTests
             Session session = factory.Create(sessionID, settings);
 
             Assert.That(session.SendRedundantResendRequests);
+            Assert.That(session.ResendSessionLevelRejects);
             Assert.That(session.MillisecondsInTimeStamp);
 
             settings.SetString(SessionSettings.SEND_REDUNDANT_RESENDREQUESTS, "N");
+            settings.SetString(SessionSettings.RESEND_SESSION_LEVEL_REJECTS, "N");
             settings.SetString(SessionSettings.MILLISECONDS_IN_TIMESTAMP, "N");
             session = factory.Create(sessionID, settings);
 
             Assert.That(!session.SendRedundantResendRequests);
+            Assert.That(!session.ResendSessionLevelRejects);
             Assert.That(!session.MillisecondsInTimeStamp);
             Assert.That(session.EnableLastMsgSeqNumProcessed);
             Assert.That(session.MaxMessagesInResendRequest, Is.EqualTo(2500));
